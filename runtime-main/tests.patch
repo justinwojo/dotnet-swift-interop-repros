@@ -1,0 +1,294 @@
+diff --git a/src/tests/Interop/Swift/SwiftErrorHandling/SwiftErrorHandling.cs b/src/tests/Interop/Swift/SwiftErrorHandling/SwiftErrorHandling.cs
+index b8dabce8..53997793 100644
+--- a/src/tests/Interop/Swift/SwiftErrorHandling/SwiftErrorHandling.cs
++++ b/src/tests/Interop/Swift/SwiftErrorHandling/SwiftErrorHandling.cs
+@@ -259,6 +259,119 @@ public static unsafe void TestUnmanagedCallersOnlyWithReturn()
+         Assert.True(retValue == (expectedValue * 2), string.Format("Return value does not match expected value. Expected: {0}, Actual: {1}", (expectedValue * 2), retValue));
+     }
+ 
++    [UnmanagedCallConv(CallConvs = [typeof(CallConvSwift)])]
++    [DllImport(SwiftLib, EntryPoint = "conditionallyThrowErrorWithValues")]
++    public static extern unsafe long conditionallyThrowErrorWithValuesErrorLast(int willThrow, long a, long b, SwiftError* error);
++
++    [UnmanagedCallConv(CallConvs = [typeof(CallConvSwift)])]
++    [DllImport(SwiftLib, EntryPoint = "conditionallyThrowErrorWithValues")]
++    public static extern unsafe long conditionallyThrowErrorWithValuesErrorFirst(SwiftError* error, int willThrow, long a, long b);
++
++    [Fact]
++    public static unsafe void TestSwiftErrorLastWithValues()
++    {
++        const string expectedErrorMessage = "Catch me if you can!";
++        SetErrorMessageForSwift(expectedErrorMessage);
++
++        SwiftError error;
++        long result = conditionallyThrowErrorWithValuesErrorLast(0, 12, 34, &error);
++        Assert.True(error.Value == null, "No Swift error was expected to be thrown.");
++        Assert.Equal(12034, result);
++
++        conditionallyThrowErrorWithValuesErrorLast(1, 12, 34, &error);
++        Assert.True(error.Value != null, "A Swift error was expected to be thrown.");
++        Assert.Equal(expectedErrorMessage, GetErrorMessageFromSwift(error));
++    }
++
++    // SwiftError is not passed in an argument register, so its position in the managed signature
++    // must not affect the registers used by the other arguments.
++    [Fact]
++    public static unsafe void TestSwiftErrorBeforeOtherArguments()
++    {
++        const string expectedErrorMessage = "Catch me if you can!";
++        SetErrorMessageForSwift(expectedErrorMessage);
++
++        SwiftError error;
++        long result = conditionallyThrowErrorWithValuesErrorFirst(&error, 0, 12, 34);
++        Assert.True(error.Value == null, "No Swift error was expected to be thrown.");
++        Assert.Equal(12034, result);
++
++        conditionallyThrowErrorWithValuesErrorFirst(&error, 1, 12, 34);
++        Assert.True(error.Value != null, "A Swift error was expected to be thrown.");
++        Assert.Equal(expectedErrorMessage, GetErrorMessageFromSwift(error));
++    }
++
++    [UnmanagedCallConv(CallConvs = [typeof(CallConvSwift)])]
++    [DllImport(SwiftLib, EntryPoint = "$s18SwiftErrorHandling26nativeFunctionWithCallback5value03setB0_s5Int32VAF_A3F_AFtXEtF")]
++    public static extern unsafe int NativeFunctionWithCallbackErrorLast(int value, int setError, delegate* unmanaged[Swift]<int, int, SwiftError*, int> callback, SwiftError* error);
++
++    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvSwift)])]
++    private static unsafe int ConditionallySetErrorAndReturnErrorLast(int value, int setError, SwiftError* error)
++    {
++        // Report misplaced arguments through the return value instead of writing through
++        // an argument that may not be the SwiftError*.
++        if (setError != 0 && setError != 1)
++        {
++            return -1;
++        }
++
++        if (setError != 0)
++        {
++            *error = new SwiftError((void*)value);
++        }
++        else
++        {
++            *error = new SwiftError(null);
++        }
++
++        return (value * 2);
++    }
++
++    // SwiftError is not passed in an argument register, so it may appear after the other
++    // arguments of an UnmanagedCallersOnly method.
++    [Fact]
++    public static unsafe void TestUnmanagedCallersOnlyWithErrorLast()
++    {
++        SwiftError error;
++        int expectedValue = 42;
++        int retValue = NativeFunctionWithCallbackErrorLast(expectedValue, 0, &ConditionallySetErrorAndReturnErrorLast, &error);
++
++        Assert.Equal(expectedValue * 2, retValue);
++        Assert.True(error.Value == null, "Expected SwiftError value to be null.");
++
++        retValue = NativeFunctionWithCallbackErrorLast(expectedValue, 1, &ConditionallySetErrorAndReturnErrorLast, &error);
++
++        Assert.Equal(expectedValue * 2, retValue);
++        Assert.Equal(expectedValue, (int)error.Value);
++    }
++
++    [UnmanagedCallConv(CallConvs = [typeof(CallConvSwift)])]
++    [DllImport(SwiftLib, EntryPoint = "$s18SwiftErrorHandling018conditionallyThrowB004willE0s5Int32VAE_tKF")]
++    public static extern unsafe nint conditionallyThrowErrorPtr(int willThrow, SwiftError* error);
++
++    // The error is written by the call but never read afterwards. The optimizing JIT must still
++    // compile the call and preserve its result.
++    [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.AggressiveOptimization)]
++    private static unsafe nint CallIgnoringSwiftError(int willThrow)
++    {
++        SwiftError error = default;
++        return conditionallyThrowErrorPtr(willThrow, &error);
++    }
++
++    [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.AggressiveOptimization)]
++    private static nint CallIgnoringSwiftErrorByRef(int willThrow)
++    {
++        SwiftError error = default;
++        return conditionallyThrowError(willThrow, ref error);
++    }
++
++    [Fact]
++    public static void TestSwiftErrorNotObserved()
++    {
++        Assert.Equal(42, CallIgnoringSwiftError(0));
++        Assert.Equal(42, CallIgnoringSwiftErrorByRef(0));
++    }
++
+     private static void SetErrorMessageForSwift(string message)
+     {
+         SetErrorMessage(message, message.Length);
+diff --git a/src/tests/Interop/Swift/SwiftErrorHandling/SwiftErrorHandling.swift b/src/tests/Interop/Swift/SwiftErrorHandling/SwiftErrorHandling.swift
+index 68fdf30b..66d39a72 100644
+--- a/src/tests/Interop/Swift/SwiftErrorHandling/SwiftErrorHandling.swift
++++ b/src/tests/Interop/Swift/SwiftErrorHandling/SwiftErrorHandling.swift
+@@ -47,6 +47,14 @@ public func conditionallyThrowErrorAfterSixArguments(
+     return try conditionallyThrowError(willThrow: willThrow)
+ }
+ 
++@_silgen_name("conditionallyThrowErrorWithValues")
++public func conditionallyThrowErrorWithValues(willThrow: Int32, a: Int64, b: Int64) throws -> Int64 {
++    if willThrow != 0 {
++        throw MyError.runtimeError(message: errorMessage)
++    }
++    return a * 1000 + b
++}
++
+ private let fnvOffsetBasis: UInt = 14695981039346656037
+ private let fnvPrime: UInt = 1099511628211
+ 
+diff --git a/src/tests/Interop/Swift/SwiftSelfContext/SwiftSelfContext.cs b/src/tests/Interop/Swift/SwiftSelfContext/SwiftSelfContext.cs
+index ae9225e0..39180801 100644
+--- a/src/tests/Interop/Swift/SwiftSelfContext/SwiftSelfContext.cs
++++ b/src/tests/Interop/Swift/SwiftSelfContext/SwiftSelfContext.cs
+@@ -105,4 +105,116 @@ public unsafe static void TestSelfIsFrozenNonEnregisteredStructWithExtraArgs()
+         float sum = SumFrozenNonEnregisteredStructWithExtraArgs(3f, 4f, new SwiftSelf<FrozenNonEnregisteredStruct>(new FrozenNonEnregisteredStruct { A = 10, B = 20, C = 30, D = 40, E = 50 }));
+         Assert.Equal(157f, sum);
+     }
++
++    [StructLayout(LayoutKind.Sequential)]
++    public struct FrozenMutableStruct
++    {
++        public long A;
++        public long B;
++        public long C;
++        public long D;
++        public long E;
++    }
++
++    [UnmanagedCallConv(CallConvs = [typeof(CallConvSwift)])]
++    [DllImport(SwiftLib, EntryPoint = "$s16SwiftSelfContext19FrozenMutableStructV3add1x1ys5Int64VAH_AHtF")]
++    public static extern long AddToFrozenMutableStruct(long x, long y, SwiftSelf self);
++
++    [UnmanagedCallConv(CallConvs = [typeof(CallConvSwift)])]
++    [DllImport(SwiftLib, EntryPoint = "$s16SwiftSelfContext19FrozenMutableStructV3add1x1ys5Int64VAH_AHtF")]
++    public static extern long AddToFrozenMutableStructSelfFirst(SwiftSelf self, long x, long y);
++
++    // A mutating method receives a pointer to the receiver in the self register and updates it in place.
++    // The receiver memory must hold exactly what Swift wrote: nothing else may write through the
++    // self register after the call returns.
++    [Fact]
++    public unsafe static void TestSelfIsMutatedFrozenStruct()
++    {
++        FrozenMutableStruct receiver = new FrozenMutableStruct { A = 1, B = 2, C = 3, D = 4, E = 5 };
++        long sum = AddToFrozenMutableStruct(10, 20, new SwiftSelf(&receiver));
++        Assert.Equal(45, sum);
++        Assert.Equal(11, receiver.A);
++        Assert.Equal(22, receiver.B);
++        Assert.Equal(3, receiver.C);
++        Assert.Equal(4, receiver.D);
++        Assert.Equal(5, receiver.E);
++    }
++
++    [Fact]
++    public unsafe static void TestSelfIsMutatedFrozenStructOnHeap()
++    {
++        FrozenMutableStruct* receiver = (FrozenMutableStruct*)NativeMemory.Alloc((nuint)sizeof(FrozenMutableStruct));
++        try
++        {
++            *receiver = new FrozenMutableStruct { A = 1, B = 2, C = 3, D = 4, E = 5 };
++            long sum = AddToFrozenMutableStruct(10, 20, new SwiftSelf(receiver));
++            Assert.Equal(45, sum);
++            Assert.Equal(11, receiver->A);
++            Assert.Equal(22, receiver->B);
++            Assert.Equal(3, receiver->C);
++            Assert.Equal(4, receiver->D);
++            Assert.Equal(5, receiver->E);
++        }
++        finally
++        {
++            NativeMemory.Free(receiver);
++        }
++    }
++
++    // SwiftSelf is not passed in an argument register, so its position in the managed signature
++    // must not affect the registers used by the other arguments.
++    [Fact]
++    public unsafe static void TestSelfBeforeOtherArguments()
++    {
++        FrozenMutableStruct receiver = new FrozenMutableStruct { A = 1, B = 2, C = 3, D = 4, E = 5 };
++        long sum = AddToFrozenMutableStructSelfFirst(new SwiftSelf(&receiver), 10, 20);
++        Assert.Equal(45, sum);
++        Assert.Equal(11, receiver.A);
++        Assert.Equal(22, receiver.B);
++        Assert.Equal(3, receiver.C);
++        Assert.Equal(4, receiver.D);
++        Assert.Equal(5, receiver.E);
++    }
++
++    [UnmanagedCallConv(CallConvs = [typeof(CallConvSwift)])]
++    [DllImport(SwiftLib, EntryPoint = "$s16SwiftSelfContext27callClosureWithTwoArgumentsys5Int64VA2D_ADtXEF")]
++    public unsafe static extern long CallClosureWithTwoArguments(delegate* unmanaged[Swift]<long, long, SwiftSelf, long> func, void* funcContext);
++
++    [UnmanagedCallConv(CallConvs = [typeof(CallConvSwift)])]
++    [DllImport(SwiftLib, EntryPoint = "$s16SwiftSelfContext27callClosureWithTwoArgumentsys5Int64VA2D_ADtXEF")]
++    public unsafe static extern long CallClosureWithTwoArgumentsSelfFirst(delegate* unmanaged[Swift]<SwiftSelf, long, long, long> func, void* funcContext);
++
++    private static nint s_closureContext;
++
++    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvSwift)])]
++    private unsafe static long CombineWithSelfLast(long a, long b, SwiftSelf self)
++    {
++        s_closureContext = (nint)self.Value;
++        return a * 1000 + b;
++    }
++
++    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvSwift)])]
++    private unsafe static long CombineWithSelfFirst(SwiftSelf self, long a, long b)
++    {
++        s_closureContext = (nint)self.Value;
++        return a * 1000 + b;
++    }
++
++    [Fact]
++    public unsafe static void TestReversePInvokeSelfLast()
++    {
++        s_closureContext = 0;
++        long result = CallClosureWithTwoArguments(&CombineWithSelfLast, (void*)0x1234);
++        Assert.Equal(10020, result);
++        Assert.Equal((nint)0x1234, s_closureContext);
++    }
++
++    [Fact]
++    public unsafe static void TestReversePInvokeSelfBeforeOtherArguments()
++    {
++        s_closureContext = 0;
++        long result = CallClosureWithTwoArgumentsSelfFirst(&CombineWithSelfFirst, (void*)0x1234);
++        Assert.Equal(10020, result);
++        Assert.Equal((nint)0x1234, s_closureContext);
++    }
+ }
+diff --git a/src/tests/Interop/Swift/SwiftSelfContext/SwiftSelfContext.swift b/src/tests/Interop/Swift/SwiftSelfContext/SwiftSelfContext.swift
+index 1b01e3f0..4e4c7373 100644
+--- a/src/tests/Interop/Swift/SwiftSelfContext/SwiftSelfContext.swift
++++ b/src/tests/Interop/Swift/SwiftSelfContext/SwiftSelfContext.swift
+@@ -50,4 +50,23 @@ public struct FrozenNonEnregisteredStruct {
+     public func sumWithExtraArgs(f: Float, g: Float) -> Float {
+         return Float(a + b + c + d + e) + f + g
+     }
+-}
+\ No newline at end of file
++}
++
++@frozen
++public struct FrozenMutableStruct {
++    public var a : Int64;
++    public var b : Int64;
++    public var c : Int64;
++    public var d : Int64;
++    public var e : Int64;
++
++    public mutating func add(x: Int64, y: Int64) -> Int64 {
++        a += x
++        b += y
++        return a + b + c + d + e
++    }
++}
++
++public func callClosureWithTwoArguments(_ f: (Int64, Int64) -> Int64) -> Int64 {
++    return f(10, 20)
++}

@@ -1,0 +1,117 @@
+# Per-test results, Checked osx-arm64 Core_Root, main 9f06f271 + tests.patch.
+# Each [Fact] runs in its own corerun process via a reflection driver (see README).
+# jit = default (tiered); interp = DOTNET_Interpreter='<Assembly>!*' (what RunInterpreter=1 sets).
+
+## SwiftAbiStress.interp
+100 PASS, 0 FAIL, 0 CRASH (of      100)
+
+## SwiftAbiStress.jit
+100 PASS, 0 FAIL, 0 CRASH (of      100)
+
+## SwiftCallbackAbiStress.interp
+100 PASS, 0 FAIL, 0 CRASH (of      100)
+
+## SwiftCallbackAbiStress.jit
+100 PASS, 0 FAIL, 0 CRASH (of      100)
+
+## SwiftErrorHandling.interp
+[interp] PASS ErrorHandlingTests.TestSwiftErrorThrown
+[interp] PASS ErrorHandlingTests.TestSwiftErrorNotThrown
+[interp] PASS ErrorHandlingTests.TestSwiftErrorOnStackThrown
+[interp] PASS ErrorHandlingTests.TestSwiftErrorOnStackNotThrown
+[interp] PASS ErrorHandlingTests.TestSwiftErrorInFirstStackSlotNotThrown
+[interp] PASS ErrorHandlingTests.TestSwiftErrorAfterSixArgumentsThrown
+[interp] PASS ErrorHandlingTests.TestSwiftErrorAfterSixArgumentsNotThrown
+[interp] PASS ErrorHandlingTests.TestSwiftAbiOneWordArgument
+[interp] PASS ErrorHandlingTests.TestUnmanagedCallersOnly
+[interp] PASS ErrorHandlingTests.TestUnmanagedCallersOnlyWithReturn
+[interp] PASS ErrorHandlingTests.TestSwiftErrorLastWithValues
+[interp] FAIL ErrorHandlingTests.TestSwiftErrorBeforeOtherArguments: TrueException: No Swift error was expected to be thrown.
+[interp] FAIL ErrorHandlingTests.TestUnmanagedCallersOnlyWithErrorLast: EqualException: Assert.Equal() Failure: Values differ Expected: 84 Actual:   -1
+[interp] PASS ErrorHandlingTests.TestSwiftErrorNotObserved
+
+## SwiftErrorHandling.jit
+[jit] PASS ErrorHandlingTests.TestSwiftErrorThrown
+[jit] PASS ErrorHandlingTests.TestSwiftErrorNotThrown
+[jit] PASS ErrorHandlingTests.TestSwiftErrorOnStackThrown
+[jit] PASS ErrorHandlingTests.TestSwiftErrorOnStackNotThrown
+[jit] PASS ErrorHandlingTests.TestSwiftErrorInFirstStackSlotNotThrown
+[jit] PASS ErrorHandlingTests.TestSwiftErrorAfterSixArgumentsThrown
+[jit] PASS ErrorHandlingTests.TestSwiftErrorAfterSixArgumentsNotThrown
+[jit] PASS ErrorHandlingTests.TestSwiftAbiOneWordArgument
+[jit] PASS ErrorHandlingTests.TestUnmanagedCallersOnly
+[jit] PASS ErrorHandlingTests.TestUnmanagedCallersOnlyWithReturn
+[jit] PASS ErrorHandlingTests.TestSwiftErrorLastWithValues
+[jit] PASS ErrorHandlingTests.TestSwiftErrorBeforeOtherArguments
+[jit] PASS ErrorHandlingTests.TestUnmanagedCallersOnlyWithErrorLast
+[jit] CRASH ErrorHandlingTests.TestSwiftErrorNotObserved rc=134: Assert failure(PID 62865 [0x0000f591], Thread: 38198431 [0x246dc9f]): Assertion failed 'swiftErrorNode != nullptr' in 'ErrorHandlingTests:CallIgnoringSwiftError(int):nint' during 'Lowering nodeinfo' (IL size 18; hash 0xe39e1c80; FullOpts)     File: $RUNTIME/src/coreclr/jit/lower.cpp:7337 (path trimmed)
+
+## SwiftIndirectResult.interp
+[interp] PASS SwiftIndirectResultTests.TestReturnNonFrozenStruct
+[interp] PASS SwiftIndirectResultTests.TestSumReturnedNonFrozenStruct
+
+## SwiftIndirectResult.jit
+[jit] PASS SwiftIndirectResultTests.TestReturnNonFrozenStruct
+[jit] PASS SwiftIndirectResultTests.TestSumReturnedNonFrozenStruct
+
+## SwiftInlineArray.interp
+[interp] PASS SwiftInlineArray.TestFuncWithByteInlineArray
+[interp] PASS SwiftInlineArray.TestFuncWithIntInlineArray
+[interp] PASS SwiftInlineArray.TestFuncWithLargeInlineArray
+[interp] PASS SwiftInlineArray.TestFuncWithSingleElementInlineArray
+[interp] PASS SwiftInlineArray.TestFuncWithStaticFields
+
+## SwiftInlineArray.jit
+[jit] PASS SwiftInlineArray.TestFuncWithByteInlineArray
+[jit] PASS SwiftInlineArray.TestFuncWithIntInlineArray
+[jit] PASS SwiftInlineArray.TestFuncWithLargeInlineArray
+[jit] PASS SwiftInlineArray.TestFuncWithSingleElementInlineArray
+[jit] PASS SwiftInlineArray.TestFuncWithStaticFields
+
+## SwiftInvalidCallConv.interp
+[interp] PASS InvalidCallingConvTests.TestFuncWithTwoSelfParameters
+[interp] PASS InvalidCallingConvTests.TestFuncWithTwoErrorParameters
+[interp] PASS InvalidCallingConvTests.TestFuncWithMixedParameters
+[interp] PASS InvalidCallingConvTests.TestFuncWithSwiftErrorAsArg
+[interp] PASS InvalidCallingConvTests.TestFuncWithNonPrimitiveArg
+[interp] PASS InvalidCallingConvTests.TestFuncWithSIMDArg
+
+## SwiftInvalidCallConv.jit
+[jit] PASS InvalidCallingConvTests.TestFuncWithTwoSelfParameters
+[jit] PASS InvalidCallingConvTests.TestFuncWithTwoErrorParameters
+[jit] PASS InvalidCallingConvTests.TestFuncWithMixedParameters
+[jit] PASS InvalidCallingConvTests.TestFuncWithSwiftErrorAsArg
+[jit] PASS InvalidCallingConvTests.TestFuncWithNonPrimitiveArg
+[jit] PASS InvalidCallingConvTests.TestFuncWithSIMDArg
+
+## SwiftRetAbiStress.interp
+100 PASS, 0 FAIL, 0 CRASH (of      100)
+
+## SwiftRetAbiStress.jit
+100 PASS, 0 FAIL, 0 CRASH (of      100)
+
+## SwiftSelfContext.interp
+[interp] PASS SelfContextTests.TestSwiftSelfContext
+[interp] PASS SelfContextTests.TestSwiftSelfContextOnStack
+[interp] PASS SelfContextTests.TestSelfIsFrozenEnregisteredStruct
+[interp] PASS SelfContextTests.TestSelfIsFrozenNonEnregisteredStruct
+[interp] PASS SelfContextTests.TestSelfIsFrozenEnregisteredStructWithExtraArgs
+[interp] PASS SelfContextTests.TestSelfIsFrozenNonEnregisteredStructWithExtraArgs
+[interp] PASS SelfContextTests.TestSelfIsMutatedFrozenStruct
+[interp] PASS SelfContextTests.TestSelfIsMutatedFrozenStructOnHeap
+[interp] FAIL SelfContextTests.TestSelfBeforeOtherArguments: EqualException: Assert.Equal() Failure: Values differ Expected: 45 Actual:   4549062737
+[interp] PASS SelfContextTests.TestReversePInvokeSelfLast
+[interp] FAIL SelfContextTests.TestReversePInvokeSelfBeforeOtherArguments: EqualException: Assert.Equal() Failure: Values differ Expected: 10020 Actual:   41014021680
+
+## SwiftSelfContext.jit
+[jit] PASS SelfContextTests.TestSwiftSelfContext
+[jit] PASS SelfContextTests.TestSwiftSelfContextOnStack
+[jit] PASS SelfContextTests.TestSelfIsFrozenEnregisteredStruct
+[jit] PASS SelfContextTests.TestSelfIsFrozenNonEnregisteredStruct
+[jit] PASS SelfContextTests.TestSelfIsFrozenEnregisteredStructWithExtraArgs
+[jit] PASS SelfContextTests.TestSelfIsFrozenNonEnregisteredStructWithExtraArgs
+[jit] PASS SelfContextTests.TestSelfIsMutatedFrozenStruct
+[jit] PASS SelfContextTests.TestSelfIsMutatedFrozenStructOnHeap
+[jit] PASS SelfContextTests.TestSelfBeforeOtherArguments
+[jit] PASS SelfContextTests.TestReversePInvokeSelfLast
+[jit] PASS SelfContextTests.TestReversePInvokeSelfBeforeOtherArguments

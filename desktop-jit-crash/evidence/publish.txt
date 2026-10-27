@@ -1,0 +1,10 @@
+net10.0  PublishReadyToRun  publish exit=1   error NETSDK1096 exited with code 139 
+net10.0  PublishAot         publish exit=0   
+    run observed exit=0
+    run unobserved exit=0
+    run unobserved-error-first exit=0
+net11.0  PublishReadyToRun  publish exit=1   error NETSDK1096 exited with code 139 
+net11.0  PublishAot         publish exit=0   
+    run observed exit=0
+    run unobserved exit=0
+    run unobserved-error-first exit=0

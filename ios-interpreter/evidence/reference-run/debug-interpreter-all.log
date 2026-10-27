@@ -1,0 +1,22 @@
+2026-10-27 11:22:38.101 InterpreterRepro[35605:38437323] Microsoft.iOS: Socket error while connecting to IDE on 127.0.0.1:10000: Connection refused
+2026-10-27 11:22:38.293 InterpreterRepro[35605:38437262] ENV runtime=.NET 11.0.0-rc.2.26504.105 arch=Arm64 dynamicSupported=True dynamicCompiled=False
+2026-10-27 11:22:38.293 InterpreterRepro[35605:38437262] CONFIG Debug engine=interpreter
+2026-10-27 11:22:38.304 InterpreterRepro[35605:38437262] PASS forward-error.cdecl actual=11,22,33,44,55 expected=11,22,33,44,55
+2026-10-27 11:22:38.305 InterpreterRepro[35605:38437262] PASS forward-error.last.error error=0x0
+2026-10-27 11:22:38.305 InterpreterRepro[35605:38437262] PASS forward-error.last actual=11,22,33,44,55 expected=11,22,33,44,55
+2026-10-27 11:22:38.305 InterpreterRepro[35605:38437262] PASS forward-error.first.error error=0x0
+2026-10-27 11:22:38.305 InterpreterRepro[35605:38437262] FAIL forward-error.first actual=4442979648,11,22,44,55 expected=11,22,33,44,55
+2026-10-27 11:22:38.305 InterpreterRepro[35605:38437262] PASS reverse-error.first value=12345 expected=12345 error=0x16b780440 returned=99 expectedReturn=99
+2026-10-27 11:22:38.305 InterpreterRepro[35605:38437262] FAIL reverse-error.last value=6097994816 expected=12345 error=0x3039 returned=99 expectedReturn=99
+2026-10-27 11:22:38.305 InterpreterRepro[35605:38437262] PASS reverse-self.last value=12345 expected=12345 self=0x5e1fc0de0000 expectedSelf=0x5e1fc0de0000 returned=99
+2026-10-27 11:22:38.305 InterpreterRepro[35605:38437262] FAIL reverse-self.first value=103490472771584 expected=12345 self=0x5e1fc0de0000 expectedSelf=0x5e1fc0de0000 returned=99
+2026-10-27 11:22:38.305 InterpreterRepro[35605:38437262] FAIL self-first.result actual=4442980537,12,4442980549,4442980540,15 expected=11,22,33,14,25
+2026-10-27 11:22:38.305 InterpreterRepro[35605:38437262] PASS self-scalar.result actual=15 expected=15
+2026-10-27 11:22:38.305 InterpreterRepro[35605:38437262] PASS self-scalar.receiver actual=1,2,3,4,5 expected=1,2,3,4,5 (non-mutating method)
+2026-10-27 11:22:38.305 InterpreterRepro[35605:38437262] PASS self.cdecl receiver=11,22,33,14,25 result=11,22,33,14,25 expected=11,22,33,14,25
+2026-10-27 11:22:38.305 InterpreterRepro[35605:38437262] PASS self.stack.result actual=11,22,33,14,25
+2026-10-27 11:22:38.306 InterpreterRepro[35605:38437262] PASS self.stack.receiver actual=11,22,33,14,25 expected=11,22,33,14,25
+2026-10-27 11:22:38.306 InterpreterRepro[35605:38437262] PASS self.heap.result actual=11,22,33,14,25
+2026-10-27 11:22:38.306 InterpreterRepro[35605:38437262] FAIL self.heap.receiver actual=4294967307,22,33,14,25 expected=11,22,33,14,25
+2026-10-27 11:22:38.306 InterpreterRepro[35605:38437262] COMPLETE failures=5
+com.swiftinteroprepro.interpreter: 35605

@@ -1,0 +1,62 @@
+# JitDump via x64 altjit (libclrjit_unix_x64_arm64.dylib, Checked, main 9f06f271) for Program:PlainUnobserved
+# DOTNET_TieredCompilation=0 DOTNET_AltJit=PlainUnobserved DOTNET_AltJitName=libclrjit_unix_x64_arm64.dylib DOTNET_JitDump=PlainUnobserved
+****** START compiling Program:PlainUnobserved():long (MethodHash=1af67085)
+Generating code for Unix x64
+OPTIONS: compCodeOpt = BLENDED_CODE
+...
+## Early liveness
+*************** Starting PHASE Early liveness
+*************** In Liveness::Run()
+In Liveness::Init
+Tracked variable (4 out of 7) table:
+V02 tmp1          [  long]: refCnt =    2, refCntWtd =   0   
+V03 tmp2          [  long]: refCnt =    1, refCntWtd =   0   
+V04 FramesRoot    [  long]: refCnt =    1, refCntWtd =   1   
+V06 tmp5          [  long]: refCnt =    2, refCntWtd =   0   
+
+*************** In Liveness::PerBlockLocalVarLiveness()
+BB01 USE(0)={       }
+     DEF(2)={V02 V06}
+
+BB02 USE(1)={V03}
+     DEF(0)={   }
+
+*************** IngInterBlockLocalVarLiveness()
+
+BB liveness after DoLiveVarAnalysis():
+
+BB01 IN (0)={}
+     OUT(0)={}
+
+BB02 IN (1)={V03}
+     OUT(0)={   }
+
+Store [000009] is dead and has no side effects, removing statement
+
+removing useless STMT00001 ( 0x008[E--] ... ??? )
+               [000009] DAC-GO-----                         *  STORE_LCL_VAR long   V06 tmp5         
+               [000008] --C-GO-----                         \--*  SWIFT_ERROR long  
+ from BB01
+Store [000002] is dead and has no side effects, removing statement
+
+removing useless STMT00000 ( 0x000[E--] ... 0x003 )
+               [000002] DA---------                         *  STORE_LCL_VAR struct<System.Runtime.InteropServices.Swift.SwiftError, 8>(P) V00 loc0         
+                                                            *    long   field V00.<Value>k__BackingField (fldOffset=0x0) -> V06 tmp5         
+               [000001] -----------                         \--*  CNS_INT   int    0
+ from BB01
+
+*************** Finishing PHASE Early liveness
+...
+## Lowering tail (next output is the assert)
+Passed in [00..08) reg rdi
+N001 (  1,  1) [000004] -----------                    t4 =    CNS_INT   long   41 $c1
+                                                            /--*  t4     long   
+               [000024] -----------                   t24 = *  PUTARG_REG long   REG rdi
+Lowering arg: 
+N002 (  1,  1) [000007] -----------                    t7 =    CNS_INT   int    0 $42
+Passed in [00..08) reg r12
+N002 (  1,  1) [000007] -----------                    t7 =    CNS_INT   int    0 $42
+                                                            /--*  t7     int    
+               [000025] -----------                   t25 = *  PUTARG_REG int    REG r12
+======= Inserting PInvoke call prolog
+======= Inserting PInvoke call epilog

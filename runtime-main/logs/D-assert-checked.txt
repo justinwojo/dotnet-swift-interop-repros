@@ -1,0 +1,42 @@
+# Standalone repro (JitCrash.dll, Program.cs in README) on Checked osx-arm64 Core_Root, main 9f06f271
+
+$ DOTNET_TieredCompilation=0 $CORE_ROOT/corerun JitCrash.dll plain-unobserved
+runtime=.NET 12.0.0-dev
+Assert failure(PID 97678 [0x00017d8e], Thread: 38264108 [0x247dd2c]): Assertion failed 'swiftErrorNode != nullptr' in 'Program:PlainUnobserved():long' during 'Lowering nodeinfo' (IL size 20; hash 0x1af67085; FullOpts)
+    File: $RUNTIME/src/coreclr/jit/lower.cpp:7337
+    Image: $RUNTIME/artifacts/tests/coreclr/osx.arm64.Checked/Tests/Core_Root/corerun
+exit=134
+
+$ DOTNET_TieredCompilation=0 $CORE_ROOT/corerun JitCrash.dll plain-observed
+runtime=.NET 12.0.0-dev
+plain-observed -> 42
+exit=0
+
+$ DOTNET_TieredCompilation=0 $CORE_ROOT/corerun JitCrash.dll indirect-last-unobserved
+runtime=.NET 12.0.0-dev
+Assert failure(PID 97755 [0x00017ddb], Thread: 38264415 [0x247de5f]): Assertion failed 'swiftErrorNode != nullptr' in 'Program:IndirectLastUnobserved():long' during 'Lowering nodeinfo' (IL size 48; hash 0xb0d709ff; FullOpts)
+    File: $RUNTIME/src/coreclr/jit/lower.cpp:7337
+    Image: $RUNTIME/artifacts/tests/coreclr/osx.arm64.Checked/Tests/Core_Root/corerun
+exit=134
+
+$ DOTNET_TieredCompilation=0 $CORE_ROOT/corerun JitCrash.dll indirect-first-unobserved
+runtime=.NET 12.0.0-dev
+Assert failure(PID 97779 [0x00017df3], Thread: 38264523 [0x247decb]): Assertion failed 'swiftErrorNode != nullptr' in 'Program:IndirectFirstUnobserved():long' during 'Lowering nodeinfo' (IL size 48; hash 0xf83f588f; FullOpts)
+    File: $RUNTIME/src/coreclr/jit/lower.cpp:7337
+    Image: $RUNTIME/artifacts/tests/coreclr/osx.arm64.Checked/Tests/Core_Root/corerun
+exit=134
+
+$ DOTNET_TieredCompilation=0 $CORE_ROOT/corerun JitCrash.dll indirect-last-observed
+runtime=.NET 12.0.0-dev
+indirect-last-observed -> 11
+exit=0
+
+# x64 altjit
+$ DOTNET_TieredCompilation=0 DOTNET_AltJit=PlainUnobserved DOTNET_AltJitName=libclrjit_unix_x64_arm64.dylib $CORE_ROOT/corerun JitCrash.dll plain-unobserved
+runtime=.NET 12.0.0-dev
+Assert failure(PID 97825 [0x00017e21], Thread: 38264748 [0x247dfac]): Assertion failed 'swiftErrorNode != nullptr' in 'Program:PlainUnobserved():long' during 'Lowering nodeinfo' (IL size 20; hash 0x1af67085; FullOpts)
+    File: $RUNTIME/src/coreclr/jit/lower.cpp:7337
+    Image: $RUNTIME/artifacts/tests/coreclr/osx.arm64.Checked/Tests/Core_Root/corerun
+$ ... DOTNET_AltJit=PlainObserved ... plain-observed
+runtime=.NET 12.0.0-dev
+plain-observed -> 42

@@ -1,0 +1,21 @@
+2026-10-27 11:24:34.641 InterpreterRepro[37123:38445715] ENV runtime=.NET 11.0.0-rc.2.26504.105 arch=Arm64 dynamicSupported=True dynamicCompiled=False
+2026-10-27 11:24:34.641 InterpreterRepro[37123:38445715] CONFIG Release engine=r2r
+2026-10-27 11:24:34.652 InterpreterRepro[37123:38445715] PASS forward-error.cdecl actual=11,22,33,44,55 expected=11,22,33,44,55
+2026-10-27 11:24:34.653 InterpreterRepro[37123:38445715] PASS forward-error.last.error error=0x0
+2026-10-27 11:24:34.653 InterpreterRepro[37123:38445715] PASS forward-error.last actual=11,22,33,44,55 expected=11,22,33,44,55
+2026-10-27 11:24:34.653 InterpreterRepro[37123:38445715] PASS forward-error.first.error error=0x0
+2026-10-27 11:24:34.653 InterpreterRepro[37123:38445715] PASS forward-error.first actual=11,22,33,44,55 expected=11,22,33,44,55
+2026-10-27 11:24:34.653 InterpreterRepro[37123:38445715] PASS reverse-error.first value=12345 expected=12345 error=0x16af0cf30 returned=99 expectedReturn=99
+2026-10-27 11:24:34.653 InterpreterRepro[37123:38445715] PASS reverse-error.last value=12345 expected=12345 error=0x16af0cf30 returned=99 expectedReturn=99
+2026-10-27 11:24:34.653 InterpreterRepro[37123:38445715] PASS reverse-self.last value=12345 expected=12345 self=0x5e1fc0de0000 expectedSelf=0x5e1fc0de0000 returned=99
+2026-10-27 11:24:34.653 InterpreterRepro[37123:38445715] PASS reverse-self.first value=12345 expected=12345 self=0x5e1fc0de0000 expectedSelf=0x5e1fc0de0000 returned=99
+2026-10-27 11:24:34.653 InterpreterRepro[37123:38445715] PASS self-first.result actual=11,22,33,14,25 expected=11,22,33,14,25
+2026-10-27 11:24:34.653 InterpreterRepro[37123:38445715] PASS self-scalar.result actual=15 expected=15
+2026-10-27 11:24:34.653 InterpreterRepro[37123:38445715] PASS self-scalar.receiver actual=1,2,3,4,5 expected=1,2,3,4,5 (non-mutating method)
+2026-10-27 11:24:34.653 InterpreterRepro[37123:38445715] PASS self.cdecl receiver=11,22,33,14,25 result=11,22,33,14,25 expected=11,22,33,14,25
+2026-10-27 11:24:34.653 InterpreterRepro[37123:38445715] PASS self.stack.result actual=11,22,33,14,25
+2026-10-27 11:24:34.654 InterpreterRepro[37123:38445715] PASS self.stack.receiver actual=11,22,33,14,25 expected=11,22,33,14,25
+2026-10-27 11:24:34.654 InterpreterRepro[37123:38445715] PASS self.heap.result actual=11,22,33,14,25
+2026-10-27 11:24:34.654 InterpreterRepro[37123:38445715] PASS self.heap.receiver actual=11,22,33,14,25 expected=11,22,33,14,25
+2026-10-27 11:24:34.654 InterpreterRepro[37123:38445715] COMPLETE failures=0
+com.swiftinteroprepro.interpreter: 37123

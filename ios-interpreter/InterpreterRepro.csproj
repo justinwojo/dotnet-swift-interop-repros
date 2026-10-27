@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net11.0-ios</TargetFramework>
+    <RuntimeIdentifier>iossimulator-arm64</RuntimeIdentifier>
+    <OutputType>Exe</OutputType>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <UseMonoRuntime>false</UseMonoRuntime>
+    <PublishAot>false</PublishAot>
+    <ApplicationId>com.swiftinteroprepro.interpreter</ApplicationId>
+    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+    <ApplicationVersion>1</ApplicationVersion>
+    <SupportedOSPlatformVersion>16.0</SupportedOSPlatformVersion>
+  </PropertyGroup>
+
+  <!--
+    ReproEngine (set in Directory.Build.props) selects how this app assembly runs,
+    independently of Debug/Release:
+      interpreter: excluded from the ReadyToRun composite, so its methods run in the
+                   CoreCLR interpreter (the workload's Debug default).
+      r2r:         compiled into the ReadyToRun composite (the workload's Release default).
+  -->
+  <PropertyGroup Condition="'$(ReproEngine)' == 'interpreter'">
+    <FilterReadyToRunAssemblies>true</FilterReadyToRunAssemblies>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(ReproEngine)' == 'r2r'">
+    <FilterReadyToRunAssemblies>false</FilterReadyToRunAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.DisableRuntimeMarshallingAttribute" />
+    <AssemblyMetadata Include="ReproEngine" Value="$(ReproEngine)" />
+    <NativeReference Include="native-build/InteropProbe.framework">
+      <Kind>Framework</Kind>
+    </NativeReference>
+  </ItemGroup>
+</Project>

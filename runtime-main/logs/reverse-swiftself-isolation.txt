@@ -1,0 +1,34 @@
+# Reverse SwiftSelf-first isolation (Checked, main 9f06f271 + tests.patch).
+# DOTNET_Interpreter narrowed to a single method; DOTNET_InterpList=1 shows what the interpreter compiled.
+# The JIT compiles everything not listed.
+
+$ DOTNET_InterpList=1 DOTNET_Interpreter='SwiftSelfContext!*' corerun Driver.dll SwiftSelfContext.dll SelfContextTests.TestReversePInvokeSelfBeforeOtherArguments
+FAIL SelfContextTests.TestReversePInvokeSelfBeforeOtherArguments: EqualException: Assert.Equal() Failure: Values differ Expected: 10020 Actual:   37073473072
+Interpreter compile method SelfContextTests:TestReversePInvokeSelfBeforeOtherArguments()
+Interpreter compile method SelfContextTests:CombineWithSelfFirst(System.Runtime.InteropServices.Swift.SwiftSelf,long,long)
+
+$ DOTNET_InterpList=1 DOTNET_Interpreter='SwiftSelfContext!*' corerun Driver.dll SwiftSelfContext.dll SelfContextTests.TestReversePInvokeSelfLast
+PASS SelfContextTests.TestReversePInvokeSelfLast
+Interpreter compile method SelfContextTests:TestReversePInvokeSelfLast()
+Interpreter compile method SelfContextTests:CombineWithSelfLast(long,long,System.Runtime.InteropServices.Swift.SwiftSelf)
+
+$ DOTNET_InterpList=1 DOTNET_Interpreter='CombineWithSelfFirst' corerun Driver.dll SwiftSelfContext.dll SelfContextTests.TestReversePInvokeSelfBeforeOtherArguments
+FAIL SelfContextTests.TestReversePInvokeSelfBeforeOtherArguments: EqualException: Assert.Equal() Failure: Values differ Expected: 10020 Actual:   4366954896
+Interpreter compile method SelfContextTests:CombineWithSelfFirst(System.Runtime.InteropServices.Swift.SwiftSelf,long,long)
+
+$ DOTNET_InterpList=1 DOTNET_Interpreter='CombineWithSelfFirst' corerun Driver.dll SwiftSelfContext.dll SelfContextTests.TestReversePInvokeSelfLast
+PASS SelfContextTests.TestReversePInvokeSelfLast
+
+$ DOTNET_InterpList=1 DOTNET_Interpreter='CombineWithSelfLast' corerun Driver.dll SwiftSelfContext.dll SelfContextTests.TestReversePInvokeSelfBeforeOtherArguments
+PASS SelfContextTests.TestReversePInvokeSelfBeforeOtherArguments
+
+$ DOTNET_InterpList=1 DOTNET_Interpreter='CombineWithSelfLast' corerun Driver.dll SwiftSelfContext.dll SelfContextTests.TestReversePInvokeSelfLast
+PASS SelfContextTests.TestReversePInvokeSelfLast
+Interpreter compile method SelfContextTests:CombineWithSelfLast(long,long,System.Runtime.InteropServices.Swift.SwiftSelf)
+
+# Added later: filtering to the caller's name. InterpList shows the interpreter compiled the callback too,
+# so this filter does not isolate the caller.
+$ DOTNET_InterpList=1 DOTNET_Interpreter='TestReversePInvokeSelfBeforeOtherArguments' corerun Driver.dll SwiftSelfContext.dll SelfContextTests.TestReversePInvokeSelfBeforeOtherArguments
+FAIL SelfContextTests.TestReversePInvokeSelfBeforeOtherArguments: EqualException: Assert.Equal() Failure: Values differ Expected: 10020 Actual:   41339080240
+Interpreter compile method SelfContextTests:TestReversePInvokeSelfBeforeOtherArguments()
+Interpreter compile method SelfContextTests:CombineWithSelfFirst(System.Runtime.InteropServices.Swift.SwiftSelf,long,long)

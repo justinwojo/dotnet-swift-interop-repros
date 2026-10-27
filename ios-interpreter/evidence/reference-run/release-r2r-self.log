@@ -1,0 +1,9 @@
+2026-10-27 11:24:43.062 InterpreterRepro[37334:38446750] ENV runtime=.NET 11.0.0-rc.2.26504.105 arch=Arm64 dynamicSupported=True dynamicCompiled=False
+2026-10-27 11:24:43.062 InterpreterRepro[37334:38446750] CONFIG Release engine=r2r
+2026-10-27 11:24:43.072 InterpreterRepro[37334:38446750] PASS self.cdecl receiver=11,22,33,14,25 result=11,22,33,14,25 expected=11,22,33,14,25
+2026-10-27 11:24:43.072 InterpreterRepro[37334:38446750] PASS self.stack.result actual=11,22,33,14,25
+2026-10-27 11:24:43.072 InterpreterRepro[37334:38446750] PASS self.stack.receiver actual=11,22,33,14,25 expected=11,22,33,14,25
+2026-10-27 11:24:43.072 InterpreterRepro[37334:38446750] PASS self.heap.result actual=11,22,33,14,25
+2026-10-27 11:24:43.072 InterpreterRepro[37334:38446750] PASS self.heap.receiver actual=11,22,33,14,25 expected=11,22,33,14,25
+2026-10-27 11:24:43.073 InterpreterRepro[37334:38446750] COMPLETE failures=0
+com.swiftinteroprepro.interpreter: 37334

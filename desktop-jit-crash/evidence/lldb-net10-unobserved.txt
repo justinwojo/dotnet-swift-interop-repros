@@ -1,0 +1,40 @@
+(lldb) target create "/usr/local/share/dotnet/dotnet"
+Current executable set to '/usr/local/share/dotnet/dotnet' (arm64).
+(lldb) settings set -- target.run-args  "SwiftErrorJitCrash.dll" "unobserved"
+(lldb) process handle SIGSEGV -s true -p false
+NAME         PASS     STOP     NOTIFY
+===========  =======  =======  =======
+SIGSEGV      false    true     not set
+(lldb) run
+runtime=.NET 10.0.7 arch=Arm64 case=unobserved
+Process 85323 launched: '/usr/local/share/dotnet/dotnet' (arm64)
+Process 85323 stopped
+* thread #1, queue = 'com.apple.main-thread', stop reason = EXC_BAD_ACCESS (code=1, address=0x0)
+    frame #0: 0x00000001461d4910 libclrjit.dylib`Lowering::LowerNonvirtPinvokeCall(GenTreeCall*) + 672
+libclrjit.dylib`Lowering::LowerNonvirtPinvokeCall:
+->  0x1461d4910 <+672>: ldrb   w8, [x21]
+    0x1461d4914 <+676>: cmp    w8, #0x76
+    0x1461d4918 <+680>: b.ne   0x1461d490c               ; <+668>
+    0x1461d491c <+684>: ldr    x0, [x20, #0x60]
+Target 0: (dotnet) stopped.
+(lldb) bt 12
+* thread #1, queue = 'com.apple.main-thread', stop reason = EXC_BAD_ACCESS (code=1, address=0x0)
+  * frame #0: 0x00000001461d4910 libclrjit.dylib`Lowering::LowerNonvirtPinvokeCall(GenTreeCall*) + 672
+    frame #1: 0x00000001461cf924 libclrjit.dylib`Lowering::LowerCall(GenTree*) + 856
+    frame #2: 0x00000001461cd7f8 libclrjit.dylib`Lowering::LowerNode(GenTree*) + 972
+    frame #3: 0x00000001461da6d4 libclrjit.dylib`Lowering::DoPhase() + 168
+    frame #4: 0x000000014622acb4 libclrjit.dylib`Phase::Run() + 44
+    frame #5: 0x00000001460fc3ac libclrjit.dylib`Compiler::compCompile(void**, unsigned int*, JitFlags*) + 4656
+    frame #6: 0x00000001460fe058 libclrjit.dylib`Compiler::compCompileHelper(CORINFO_MODULE_STRUCT_*, ICorJitInfo*, CORINFO_METHOD_INFO*, void**, unsigned int*, JitFlags*) + 1264
+    frame #7: 0x00000001460fd54c libclrjit.dylib`Compiler::compCompile(CORINFO_MODULE_STRUCT_*, void**, unsigned int*, JitFlags*) + 768
+    frame #8: 0x00000001460fea64 libclrjit.dylib`jitNativeCode(CORINFO_METHOD_STRUCT_*, CORINFO_MODULE_STRUCT_*, ICorJitInfo*, CORINFO_METHOD_INFO*, void**, unsigned int*, JitFlags*, void*) + 416
+    frame #9: 0x00000001461023c8 libclrjit.dylib`CILJit::compileMethod(ICorJitInfo*, CORINFO_METHOD_INFO*, unsigned int, unsigned char**, unsigned int*) + 120
+    frame #10: 0x0000000105216f70 libcoreclr.dylib`UnsafeJitFunction(PrepareCodeConfig*, COR_ILMETHOD_DECODER*, bool*, bool*, unsigned int*) + 1000
+    frame #11: 0x000000010524af30 libcoreclr.dylib`MethodDesc::JitCompileCodeLocked(PrepareCodeConfig*, COR_ILMETHOD_DECODER*, ListLockEntryBase<NativeCodeVersion>*, unsigned int*, bool*) + 204
+(lldb) disassemble -p -c 4
+libclrjit.dylib`Lowering::LowerNonvirtPinvokeCall:
+->  0x1461d4910 <+672>: ldrb   w8, [x21]
+    0x1461d4914 <+676>: cmp    w8, #0x76
+    0x1461d4918 <+680>: b.ne   0x1461d490c               ; <+668>
+    0x1461d491c <+684>: ldr    x0, [x20, #0x60]
+(lldb) quit 1

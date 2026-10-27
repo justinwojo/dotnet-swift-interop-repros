@@ -1,0 +1,16 @@
+net10.0  observed                 TieredCompilation=default  exit=0    .NET 10.0.7
+net10.0  observed                 TieredCompilation=0        exit=0    .NET 10.0.7
+net10.0  unobserved               TieredCompilation=default  exit=0    .NET 10.0.7
+net10.0  unobserved               TieredCompilation=0        exit=139  .NET 10.0.7
+net10.0  unobserved-error-first   TieredCompilation=default  exit=0    .NET 10.0.7
+net10.0  unobserved-error-first   TieredCompilation=0        exit=139  .NET 10.0.7
+net10.0  unobserved-hot           TieredCompilation=default  exit=139  .NET 10.0.7
+net10.0  unobserved-hot           TieredCompilation=0        exit=139  .NET 10.0.7
+net11.0  observed                 TieredCompilation=default  exit=0    .NET 11.0.0-rc.2.26504.105
+net11.0  observed                 TieredCompilation=0        exit=0    .NET 11.0.0-rc.2.26504.105
+net11.0  unobserved               TieredCompilation=default  exit=0    .NET 11.0.0-rc.2.26504.105
+net11.0  unobserved               TieredCompilation=0        exit=139  .NET 11.0.0-rc.2.26504.105
+net11.0  unobserved-error-first   TieredCompilation=default  exit=0    .NET 11.0.0-rc.2.26504.105
+net11.0  unobserved-error-first   TieredCompilation=0        exit=139  .NET 11.0.0-rc.2.26504.105
+net11.0  unobserved-hot           TieredCompilation=default  exit=139  .NET 11.0.0-rc.2.26504.105
+net11.0  unobserved-hot           TieredCompilation=0        exit=139  .NET 11.0.0-rc.2.26504.105

@@ -1,0 +1,10 @@
+2026-10-27 11:23:19.514 InterpreterRepro[36087:38439978] Microsoft.iOS: Socket error while connecting to IDE on 127.0.0.1:10000: Connection refused
+2026-10-27 11:23:19.632 InterpreterRepro[36087:38439900] ENV runtime=.NET 11.0.0-rc.2.26504.105 arch=Arm64 dynamicSupported=True dynamicCompiled=False
+2026-10-27 11:23:19.632 InterpreterRepro[36087:38439900] CONFIG Debug engine=r2r
+2026-10-27 11:23:19.642 InterpreterRepro[36087:38439900] PASS self.cdecl receiver=11,22,33,14,25 result=11,22,33,14,25 expected=11,22,33,14,25
+2026-10-27 11:23:19.643 InterpreterRepro[36087:38439900] PASS self.stack.result actual=11,22,33,14,25
+2026-10-27 11:23:19.643 InterpreterRepro[36087:38439900] PASS self.stack.receiver actual=11,22,33,14,25 expected=11,22,33,14,25
+2026-10-27 11:23:19.643 InterpreterRepro[36087:38439900] PASS self.heap.result actual=11,22,33,14,25
+2026-10-27 11:23:19.643 InterpreterRepro[36087:38439900] PASS self.heap.receiver actual=11,22,33,14,25 expected=11,22,33,14,25
+2026-10-27 11:23:19.643 InterpreterRepro[36087:38439900] COMPLETE failures=0
+com.swiftinteroprepro.interpreter: 36087

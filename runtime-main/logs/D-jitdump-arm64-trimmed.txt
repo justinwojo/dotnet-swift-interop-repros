@@ -1,0 +1,150 @@
+# JitDump (Checked osx-arm64, main 9f06f271) for Program:PlainUnobserved, DOTNET_TieredCompilation=0 DOTNET_JitDump=PlainUnobserved
+# Trimmed: (1) importer output, (2) Local morph rewriting STOREIND->STORE_LCL_VAR, (3) Early liveness removing it, (4) Lowering up to the assert.
+
+## (1) after Importation
+
+lvaGrabTemp returning 2 (V02 tmp1) called for impAppendStmt.
+
+
+STMT00002 ( 0x008[E--] ... ??? )
+               [000010] DACXG------                         *  STORE_LCL_VAR long   V02 tmp1         
+               [000006] --CXG------                         \--*  CALL unman long   Program:PlainThrows(long,ptr):long
+               [000004] ----------- arg0                       +--*  CNS_INT   long   41
+               [000007] ----------- swift error                \--*  CNS_INT   int    0
+Marked V02 as a single def temp
+
+
+STMT00001 ( 0x008[E--] ... ??? )
+               [000009] nAC-GO-----                         *  STOREIND  long  
+               [000005] -----------                         +--*  LCL_ADDR  long   V00 loc0         [+0]
+               [000008] --C-GO-----                         \--*  SWIFT_ERROR long  
+
+    [ 1]  19 (0x013) ret
+
+## (2) Local morph
+*************** Starting PHASE Local morph
+Identifying loops in DFS tree with following reverse post order:
+RPO -> BB [pre, post]
+00 -> BB02[1, 1]
+01 -> BB01[0, 0]
+Flow graph has no cycles; skipping identification of natural loops
+LocalAddressVisitor visiting statement:
+STMT00004 ( ??? ... ??? )
+               [000014] -----------                         *  RETURN    long  
+               [000013] -------N---                         \--*  LCL_VAR   long   V03 tmp2         
+
+LocalAddressVisitor visiting statement:
+STMT00000 ( 0x000[E--] ... 0x003 )
+               [000002] DA---------                         *  STORE_LCL_VAR struct<System.Runtime.InteropServices.Swift.SwiftError, 8>(P) V00 loc0         
+                                                            *    long   field V00.<Value>k__BackingField (fldOffset=0x0) -> V06 tmp5         
+               [000001] -----------                         \--*  CNS_INT   int    0
+
+LocalAddressVisitor visiting statement:
+STMT00002 ( 0x008[E--] ... 0x013 )
+               [000010] DACXG------                         *  STORE_LCL_VAR long   V02 tmp1         
+               [000006] --CXG------                         \--*  CALL unman long   Program:PlainThrows(long,ptr):long
+               [000004] ----------- arg0                       +--*  CNS_INT   long   41
+               [000007] ----------- swift error                \--*  CNS_INT   int    0
+
+LocalAddressVisitor visiting statement:
+STMT00001 ( 0x008[E--] ... ??? )
+               [000009] nAC-GO-----                         *  STOREIND  long  
+               [000005] -----------                         +--*  LCL_ADDR  long   V00 loc0         [+0]
+                                                            +--*    long   field V00.<Value>k__BackingField (fldOffset=0x0) -> V06 tmp5         
+               [000008] --C-GO-----                         \--*  SWIFT_ERROR long  
+Replacing the field in promoted struct with local var V06
+LocalAddressVisitor modified statement:
+STMT00001 ( 0x008[E--] ... ??? )
+               [000009] DAC-GO-----                         *  STORE_LCL_VAR long   V06 tmp5         
+               [000008] --C-GO-----                         \--*  SWIFT_ERROR long  
+
+LocalAddressVisitor visiting statement:
+STMT00003 ( ??? ... ??? )
+               [000012] -----------                         *  RETURN    long  
+               [000011] -----------                         \--*  LCL_VAR   long   V02 tmp1         
+
+
+*************** Finishing PHASE Local morph
+
+## (3) Early liveness
+*************** Starting PHASE Early liveness
+*************** In Liveness::Run()
+In Liveness::Init
+Tracked variable (4 out of 7) table:
+V02 tmp1          [  long]: refCnt =    2, refCntWtd =   0   
+V03 tmp2          [  long]: refCnt =    1, refCntWtd =   0   
+V04 FramesRoot    [  long]: refCnt =    1, refCntWtd =   1   
+V06 tmp5          [  long]: refCnt =    2, refCntWtd =   0   
+
+*************** In Liveness::PerBlockLocalVarLiveness()
+BB01 USE(0)={       }
+     DEF(2)={V02 V06}
+
+BB02 USE(1)={V03}
+     DEF(0)={   }
+
+*************** IngInterBlockLocalVarLiveness()
+
+BB liveness after DoLiveVarAnalysis():
+
+BB01 IN (0)={}
+     OUT(0)={}
+
+BB02 IN (1)={V03}
+     OUT(0)={   }
+
+Store [000009] is dead and has no side effects, removing statement
+
+removing useless STMT00001 ( 0x008[E--] ... ??? )
+               [000009] DAC-GO-----                         *  STORE_LCL_VAR long   V06 tmp5         
+               [000008] --C-GO-----                         \--*  SWIFT_ERROR long  
+ from BB01
+Store [000002] is dead and has no side effects, removing statement
+
+removing useless STMT00000 ( 0x000[E--] ... 0x003 )
+               [000002] DA---------                         *  STORE_LCL_VAR struct<System.Runtime.InteropServices.Swift.SwiftError, 8>(P) V00 loc0         
+                                                            *    long   field V00.<Value>k__BackingField (fldOffset=0x0) -> V06 tmp5         
+               [000001] -----------                         \--*  CNS_INT   int    0
+ from BB01
+
+*************** Finishing PHASE Early liveness
+
+## (4) Lowering nodeinfo (tail; next output is the assert)
+N002 (  5,  6) [000020] UA--G------                         *  STORE_LCL_FLD long  (AX) V05 PInvokeFrame [+24]
+
+lowering store lcl var/field (before):
+N001 (  1,  1) [000021] -----------                   t21 =    PHYSREG   long   fp
+                                                            /--*  t21    long   
+N002 (  5,  6) [000022] UA--G------                         *  STORE_LCL_FLD long  (AX) V05 PInvokeFrame [+40]
+
+lowering store lcl var/field (after):
+N001 (  1,  1) [000021] -----------                   t21 =    PHYSREG   long   fp
+                                                            /--*  t21    long   
+N002 (  5,  6) [000022] UA--G------                         *  STORE_LCL_FLD long  (AX) V05 PInvokeFrame [+40]
+
+lowering call (before):
+N001 (  1,  2) [000004] -----------                    t4 =    CNS_INT   long   41 $c1
+N002 (  1,  2) [000007] -----------                    t7 =    CNS_INT   int    0 $42
+                                                            /--*  t4     long   arg0 x0
+                                                            +--*  t7     int    swift error x21
+N003 ( 16,  8) [000006] --CXG------                    t6 = *  CALL unman long   Program:PlainThrows(long,ptr):long (FramesRoot last use) $81
+
+Args:
+======
+
+Late args:
+======
+Lowering arg: 
+N001 (  1,  2) [000004] -----------                    t4 =    CNS_INT   long   41 $c1
+Passed in [00..08) reg x0
+N001 (  1,  2) [000004] -----------                    t4 =    CNS_INT   long   41 $c1
+                                                            /--*  t4     long   
+               [000024] -----------                   t24 = *  PUTARG_REG long   REG x0
+Lowering arg: 
+N002 (  1,  2) [000007] -----------                    t7 =    CNS_INT   int    0 $42
+Passed in [00..08) reg x21
+N002 (  1,  2) [000007] -----------                    t7 =    CNS_INT   int    0 $42
+                                                            /--*  t7     int    
+               [000025] -----------                   t25 = *  PUTARG_REG int    REG x21
+======= Inserting PInvoke call prolog
+======= Inserting PInvoke call epilog

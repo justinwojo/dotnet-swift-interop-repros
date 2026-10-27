@@ -1,0 +1,13 @@
+# Upstream harness: CORE_ROOT=... RunInterpreter=1 bash SwiftSelfContext.sh (Checked, main 9f06f271 + tests.patch)
+# (Without RunInterpreter the same script exits 0 / test exit code 100.)
+BEGIN EXECUTION
+$RUNTIME/artifacts/tests/coreclr/osx.arm64.Checked/Tests/Core_Root/corerun -p System.Reflection.Metadata.MetadataUpdater.IsSupported=false -p System.Runtime.Serialization.EnableUnsafeBinaryFormatterSerialization=true SwiftSelfContext.dll ''
+Xunit.Sdk.EqualException: Assert.Equal() Failure: Values differ
+Expected: 45
+Actual:   4448177113
+   at Xunit.Assert.Equal[T](T expected, T actual, IEqualityComparer`1 comparer) in /_/src/arcade/src/Microsoft.DotNet.XUnitAssert/src/EqualityAsserts.cs:line 102
+   at SelfContextTests.TestSelfBeforeOtherArguments() in $RUNTIME/src/tests/Interop/Swift/SwiftSelfContext/SwiftSelfContext.cs:line 171
+   at __GeneratedMainWrapper.Main() in $RUNTIME/artifacts/tests/coreclr/obj/osx.arm64.Checked/Managed/Interop/Swift/SwiftSelfContext/SwiftSelfContext/XUnitWrapperGenerator/XUnitWrapperGenerator.XUnitWrapperGenerator/SimpleRunner.g.cs:line 29
+Expected: 100
+Actual: 101
+END EXECUTION - FAILED

@@ -1,0 +1,166 @@
+# Excerpts from the libcoreclr.dylib shipped in the app bundle
+# (Microsoft.NETCore.App.Runtime iossimulator-arm64 11.0.0-rc.2.26504.105,
+#  sha256 855293178b5aedc91be5f005e1a844018fbbaf392a9063761b0804485240b4ba)
+# produced with: xcrun otool -tV -p <symbol> libcoreclr.dylib
+#
+# Source for these routines at the shipped commit (dotnet/runtime 474ed963):
+#   src/coreclr/vm/arm64/asmhelpers.S      Load_SwiftSelf, Load_SwiftError, Store_SwiftError, CallJittedMethodRet*
+#   src/coreclr/vm/interpexec.cpp          InvokeUnmanagedMethodWithTransition
+
+## Call-stub routines. Load_SwiftSelf writes x20 and Load_SwiftError writes x21;
+## both are callee-saved registers under AAPCS64.
+_Load_SwiftSelf:
+00000000003263b8	ldr	x20, [x9], #0x8
+00000000003263bc	ldr	x11, [x10], #0x8
+00000000003263c0	br	x11
+_Load_SwiftSelf_ByRef:
+00000000003263c4	mov	x20, x9
+00000000003263c8	ldr	x11, [x10], #0x8
+00000000003263cc	add	x9, x9, x11
+00000000003263d0	ldr	x11, [x10], #0x8
+00000000003263d4	br	x11
+_Load_SwiftError:
+00000000003263d8	ldr	x11, [x9], #0x8
+00000000003263dc	str	x11, [x29, #0x28]
+00000000003263e0	mov	x21, xzr
+00000000003263e4	ldr	x11, [x10], #0x8
+00000000003263e8	br	x11
+_Store_SwiftError:
+00000000003263ec	sub	x11, x29, #0x140
+00000000003263f0	str	x11, [x9], #0x8
+00000000003263f4	ldr	x11, [x10], #0x8
+00000000003263f8	br	x11
+_Load_SwiftIndirectResult:
+00000000003263fc	ldr	x8, [x9], #0x8
+0000000000326400	ldr	x11, [x10], #0x8
+0000000000326404	br	x11
+_Store_SwiftSelf:
+0000000000326408	ldr	x11, [x29, #0x18]
+000000000032640c	str	x11, [x9], #0x8
+0000000000326410	ldr	x11, [x10], #0x8
+0000000000326414	br	x11
+_Store_SwiftIndirectResult:
+0000000000326418	str	x8, [x9], #0x8
+000000000032641c	ldr	x11, [x10], #0x8
+0000000000326420	br	x11
+
+## CallJittedMethodRetVoid / RetBuff save and restore only x29/x30 (fp/lr) around the call.
+_CallJittedMethodRetVoid:
+00000000003271b0	stp	x29, x30, [sp, #-0x30]!
+00000000003271b4	mov	x29, sp
+00000000003271b8	str	x4, [x29, #0x10]
+00000000003271bc	str	xzr, [x29, #0x28]
+00000000003271c0	sub	sp, sp, x3
+00000000003271c4	mov	x10, x0
+00000000003271c8	mov	x9, x1
+00000000003271cc	ldr	x11, [x10], #0x8
+00000000003271d0	blr	x11
+00000000003271d4	ldr	x11, [x29, #0x28]
+00000000003271d8	cbz	x11, 0x3271e0
+00000000003271dc	str	x21, [x11]
+00000000003271e0	ldr	x4, [x29, #0x10]
+00000000003271e4	str	x2, [x4]
+00000000003271e8	mov	sp, x29
+00000000003271ec	ldp	x29, x30, [sp], #0x30
+00000000003271f0	ret
+_CallJittedMethodRetBuff:
+00000000003271f4	stp	x29, x30, [sp, #-0x30]!
+00000000003271f8	mov	x29, sp
+00000000003271fc	str	x4, [x29, #0x10]
+0000000000327200	str	xzr, [x29, #0x28]
+0000000000327204	sub	sp, sp, x3
+0000000000327208	mov	x10, x0
+000000000032720c	mov	x9, x1
+0000000000327210	mov	x8, x2
+0000000000327214	ldr	x11, [x10], #0x8
+0000000000327218	blr	x11
+000000000032721c	ldr	x11, [x29, #0x28]
+0000000000327220	cbz	x11, 0x327228
+0000000000327224	str	x21, [x11]
+0000000000327228	ldr	x4, [x29, #0x10]
+000000000032722c	str	x2, [x4]
+0000000000327230	mov	sp, x29
+0000000000327234	ldp	x29, x30, [sp], #0x30
+0000000000327238	ret
+
+## InvokeUnmanagedMethodWithTransition (the C++ caller of the call stub).
+## x20 holds Thread* (loaded at +0x7c) and is used after the stub returns
+## (blr x8 at +0xfc) to restore m_fPreemptiveGCDisabled at Thread+0x4.
+## If the stub returns with x20 = the SwiftSelf receiver, the write at +0x124
+## (str w8, [x20, #0x4], w8 = 1) lands in the receiver instead of the Thread.
+__Z35InvokeUnmanagedMethodWithTransitionP10MethodDescPaP24InterpMethodContextFrameS1_S1_m:
+000000000028c270	sub	sp, sp, #0xa0
+000000000028c274	stp	x26, x25, [sp, #0x50]
+000000000028c278	stp	x24, x23, [sp, #0x60]
+000000000028c27c	stp	x22, x21, [sp, #0x70]
+000000000028c280	stp	x20, x19, [sp, #0x80]
+000000000028c284	stp	x29, x30, [sp, #0x90]
+000000000028c288	add	x29, sp, #0x90
+000000000028c28c	mov	x23, x5
+000000000028c290	mov	x21, x4
+000000000028c294	mov	x22, x3
+000000000028c298	mov	x24, x0
+000000000028c29c	adrp	x8, 340 ; 0x3e0000
+000000000028c2a0	ldr	x8, [x8, #0x28] ; literal pool symbol address: ___stack_chk_guard
+000000000028c2a4	ldr	x8, [x8]
+000000000028c2a8	str	x8, [sp, #0x48]
+000000000028c2ac	adrp	x8, 230 ; 0x372000
+000000000028c2b0	ldr	q0, [x8, #0x4d0]
+000000000028c2b4	str	q0, [sp]
+000000000028c2b8	ldr	x8, [x2, #0x20]
+000000000028c2bc	stp	x2, x8, [sp, #0x18]
+000000000028c2c0	str	x1, [sp, #0x28]
+000000000028c2c4	adrp	x0, 375 ; 0x403000
+000000000028c2c8	add	x0, x0, #0xd40
+000000000028c2cc	ldr	x8, [x0]
+000000000028c2d0	blr	x8
+000000000028c2d4	mov	x19, x0
+000000000028c2d8	ldr	x8, [x0]
+000000000028c2dc	str	x8, [sp, #0x30]
+000000000028c2e0	str	xzr, [sp, #0x10]
+000000000028c2e4	mov	x0, sp
+000000000028c2e8	bl	__ZN5Frame4PushEv
+000000000028c2ec	ldr	x20, [x19]
+000000000028c2f0	cbz	x20, 0x28c308
+000000000028c2f4	ldr	w8, [x20, #0x4]
+000000000028c2f8	cbz	w8, 0x28c308
+000000000028c2fc	mov	w25, #0x0
+000000000028c300	str	wzr, [x20, #0x4]
+000000000028c304	b	0x28c30c
+000000000028c308	mov	w25, #0x1
+000000000028c30c	mov	x0, x24
+000000000028c310	bl	__ZN10MethodDesc14GetCalliCookieEv
+000000000028c314	cbnz	x0, 0x28c324
+000000000028c318	mov	x0, x24
+000000000028c31c	mov	x1, x23
+000000000028c320	bl	__ZL25InvokeManagedMethodHelperP10MethodDescm
+000000000028c324	cbz	x23, 0x28c344
+000000000028c328	add	x8, x0, #0x18
+000000000028c32c	ldrsw	x9, [x0, #0x4]
+000000000028c330	ldr	x10, [x8, x9, lsl #3]
+000000000028c334	cmp	x10, x23
+000000000028c338	b.eq	0x28c344
+000000000028c33c	add	x8, x8, x9, lsl #3
+000000000028c340	stlr	x23, [x8]
+000000000028c344	str	xzr, [sp, #0x40]
+000000000028c348	ldrb	w8, [x0, #0xc]
+000000000028c34c	cmp	w8, #0x0
+000000000028c350	add	x8, sp, #0x40
+000000000028c354	csel	x4, xzr, x8, ne
+000000000028c358	ldr	x8, [x0, #0x10]
+000000000028c35c	ldr	w3, [x0, #0x8]
+000000000028c360	add	x0, x0, #0x18
+000000000028c364	mov	x1, x22
+000000000028c368	mov	x2, x21
+000000000028c36c	blr	x8
+000000000028c370	tbz	w25, #0x0, 0x28c388
+000000000028c374	cbz	x20, 0x28c3b0
+000000000028c378	ldr	w8, [x20, #0x4]
+000000000028c37c	cbz	w8, 0x28c3b0
+000000000028c380	str	wzr, [x20, #0x4]
+000000000028c384	b	0x28c3b0
+000000000028c388	ldr	w8, [x20, #0x4]
+000000000028c38c	cbnz	w8, 0x28c3b0
+000000000028c390	mov	w8, #0x1
+000000000028c394	str	w8, [x20, #0x4]
+

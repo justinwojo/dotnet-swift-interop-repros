@@ -1,0 +1,10 @@
+bin/
+obj/
+native-build/
+artifacts/
+*.dylib
+*.dSYM/
+.DS_Store
+__pycache__/
+# Local issue drafts; they are posted to dotnet/runtime, not kept here.
+issues/

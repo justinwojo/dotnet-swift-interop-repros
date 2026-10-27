@@ -1,0 +1,25 @@
+# Class-instance hypothesis probe (Checked Core_Root, main 9f06f271).
+# Calls SwiftSelfContext.SelfLibrary.getInstance() (the receiver used by the existing TestSwiftSelfContext*) and reads the object header.
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.Swift;
+
+static unsafe class Program
+{
+    const string Lib = "libSwiftSelfContext.dylib";
+
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvSwift)])]
+    [DllImport(Lib, EntryPoint = "$s16SwiftSelfContext0B7LibraryC11getInstanceSvyFZ")]
+    static extern void* GetInstance();
+
+    static void Main()
+    {
+        byte* p = (byte*)GetInstance();
+        ulong isa = *(ulong*)p;
+        uint off4 = *(uint*)(p + 4);
+        Console.WriteLine($"instance=0x{(ulong)p:x} word@0=0x{isa:x16} u32@4=0x{off4:x8}");
+    }
+}
+
+$ corerun Probe.dll
+instance=0xaf0d1c080 word@0=0x0000000103040100 u32@4=0x00000001

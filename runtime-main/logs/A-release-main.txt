@@ -1,0 +1,63 @@
+# Bug A on main 9f06f271, Release CoreCLR built with the interpreter on, osx-arm64.
+# Build:   ./build.sh -s clr.runtime+clr.corelib -c Release /p:FeatureInterpreter=true
+# Core_Root: a copy of the Checked test Core_Root, with libcoreclr, libclrjit, libclrinterpreter, corerun
+#            and System.Private.CoreLib swapped in from artifacts/bin/coreclr/osx.arm64.Release.
+# Test assemblies: the same Checked-built tests (main + tests.patch). Each [Fact] runs in its own process.
+
+## Release, interpreter (DOTNET_Interpreter='SwiftErrorHandling!*')
+PASS TestSwiftErrorThrown / NotThrown / OnStackThrown / OnStackNotThrown / InFirstStackSlotNotThrown /
+     AfterSixArgumentsThrown / AfterSixArgumentsNotThrown / TestSwiftAbiOneWordArgument   (all use `ref SwiftError`)
+CRASH rc=139 TestUnmanagedCallersOnly              <- existing upstream test (passes on Checked interp)
+CRASH rc=139 TestUnmanagedCallersOnlyWithReturn    <- existing upstream test (passes on Checked interp)
+CRASH rc=139 TestSwiftErrorLastWithValues          (new; control for B; passes on Checked interp)
+FAIL         TestSwiftErrorBeforeOtherArguments    (B) TrueException: No Swift error was expected to be thrown.
+CRASH rc=139 TestUnmanagedCallersOnlyWithErrorLast (C)
+CRASH rc=139 TestSwiftErrorNotObserved             (D's test; under the interpreter this is A's crash, not D's)
+
+## Release, interpreter (DOTNET_Interpreter='SwiftSelfContext!*')
+PASS all existing tests, TestSelfIsMutatedFrozenStruct, TestSelfIsMutatedFrozenStructOnHeap, TestReversePInvokeSelfLast
+FAIL TestSelfBeforeOtherArguments                 Expected: 45     Actual: 4417772033
+FAIL TestReversePInvokeSelfBeforeOtherArguments   Expected: 10020  Actual: 35668381232
+
+## Release, JIT (control)
+SwiftSelfContext: all PASS.  SwiftErrorHandling: all PASS except TestSwiftErrorNotObserved CRASH rc=139 (bug D).
+
+## lldb: TestUnmanagedCallersOnly, Release interpreter
+* stop reason = EXC_BAD_ACCESS (code=1, address=0x19)
+  frame #0: libcoreclr.dylib`InvokeUnmanagedMethodWithTransition(MethodDesc*, signed char*, InterpMethodContextFrame*, signed char*, signed char*, unsigned long) + 280
+->  <+280>: ldr    w8, [x21, #0x4]
+    <+284>: cbnz   w8, <+320>
+    <+288>: mov    w8, #0x1
+    <+292>: str    w8, [x21, #0x4]
+  x20 = 0x0000000b59c00020   x21 = 0x0000000000000015
+  bt: InvokeUnmanagedMethodWithTransition <- InterpExecMethod <- ExecuteInterpretedMethod <- InterpreterStubRetVoid
+      <- InterpreterStub <- (JIT frames) <- UnmanagedCallersOnlyCaller::InvokeThrowing
+
+## lldb: TestSwiftErrorLastWithValues, Release interpreter (no error thrown, so the callee returns x21 = 0)
+* stop reason = EXC_BAD_ACCESS (code=1, address=0x4)
+  frame #0: InvokeUnmanagedMethodWithTransition(...) + 280:  ldr w8, [x21, #0x4]
+
+## Release InvokeUnmanagedMethodWithTransition (objdump; InvokeManagedMethod is inlined)
+  2b12dc: stp x20, x19, [sp, #0x80]          ; prologue saves the caller's x19-x26
+  2b1330: mov x19, x0                        ; TLS getter result (inferred: the thread-info slot)
+  2b1348: ldr x21, [x19]                     ; x21 = Thread*           <-- held across the call
+  2b1350: ldr w8, [x21, #0x4]                ; GCX_PREEMP_NO_DTOR: read m_fPreemptiveGCDisabled (offset 4)
+  2b135c: str wzr, [x21, #0x4]               ;   switch to preemptive mode
+  2b13c4: mov x2, x20                        ; x20 = pArgs (dead after the call)
+  2b13c8: blr x8                             ; CallJittedMethod* stub -> Load_SwiftError (x21 = 0) -> Swift callee (sets x21)
+  2b13e4: ldr w8, [x21, #0x4]                ; GCX_PREEMP_NO_DTOR_END: x21 is now the Swift error register   <-- fault (+280)
+  2b13f0: str w8, [x21, #0x4]                ;   writes 1 at <error or 0> + 4
+
+## Checked, for comparison: InvokeManagedMethod is NOT inlined (bl __Z19InvokeManagedMethod...), and its own
+## prologue/epilogue saves and restores x19-x28 (stp x22,x21 / stp x20,x19 ... ldp x20,x19 / ldp x22,x21).
+## The caller's x20/x21 are therefore restored before GCX_PREEMP_NO_DTOR_END, and A is masked.
+
+## Shipped 11.0.0-rc.2.26504.105, microsoft.netcore.app.runtime.iossimulator-arm64, libcoreclr.dylib (objdump, same function)
+## The register roles are swapped compared with main: there Thread* lives in x20, and x21 = pArgs is dead after the call.
+  28c290: mov  x21, x4                       ; pArgs
+  28c2ec: ldr  x20, [x19]                    ; x20 = Thread*           <-- held across the call
+  28c2f4: ldr  w8, [x20, #0x4] / 28c300: str wzr, [x20, #0x4]
+  28c36c: blr  x8                            ; stub -> Load_SwiftSelf (x20 = self) -> Swift callee (x20 preserved = self)
+  28c388: ldr  w8, [x20, #0x4]               ; GCX_PREEMP_NO_DTOR_END reads self+4
+  28c394: str  w8, [x20, #0x4]               ;   writes 1 at self+4. For a struct receiver, field a gets 1 in its high half (11 -> 4294967307).
+                                             ;   For a class receiver, u32@4 is already 1 (see A-class-instance-offset4-probe.txt), so nothing visible changes.

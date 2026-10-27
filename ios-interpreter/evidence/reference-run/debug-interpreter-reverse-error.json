@@ -1,0 +1,21 @@
+{
+  "configuration": "Debug",
+  "engine": "interpreter",
+  "case": "reverse-error",
+  "probeMethodsPrecompiled": 0,
+  "simulator": "69749797-9963-4C03-9F51-EF05F21B71F6",
+  "launcherExit": 0,
+  "timedOut": false,
+  "passed": false,
+  "completed": true,
+  "sha256": {
+    "Program.cs": "08c174378a6a829401f013c90f35229e9f05fabf4e634b5061ec2cec7a163f12",
+    "Probe.swift": "8792a82ff2e42a8372c2997e171f81dcdfbc8a4dcfc921be3ce6611f65e49584",
+    "ProbeCaller.c": "5698e5b4554216bf86161a81445b88e7557d4e62a6661bbd7a7e33cea2847152",
+    "InterpreterRepro.csproj": "9361c0e2ae3891a84d3cbef92857040427eccda5aaed413a4a9b7202af59bc04",
+    "global.json": "da4e0986b0e87d6dfa12d60debd42c6e25168c549468ce90cc4c19eaee72b1c4",
+    "bin/interpreter/Debug/net11.0-ios/iossimulator-arm64/InterpreterRepro.app/libcoreclr.dylib": "855293178b5aedc91be5f005e1a844018fbbaf392a9063761b0804485240b4ba",
+    "bin/interpreter/Debug/net11.0-ios/iossimulator-arm64/InterpreterRepro.app/Frameworks/InteropProbe.framework/InteropProbe": "be42da500064f4ec912f064ee4624f038eb73e4762207f935aa3099e527536dd",
+    "bin/interpreter/Debug/net11.0-ios/iossimulator-arm64/InterpreterRepro.app/InterpreterRepro.dll": "492e9e9229f1a73a57a6ca09b60d3f6864df6144931144e1d509e0ca19a9a11a"
+  }
+}

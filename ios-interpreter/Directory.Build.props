@@ -1,0 +1,13 @@
+<Project>
+  <!-- Separate bin/obj per engine so interpreter and R2R builds never share outputs. -->
+  <PropertyGroup>
+    <ReproEngine Condition="'$(ReproEngine)' == ''">interpreter</ReproEngine>
+    <BaseOutputPath>bin/$(ReproEngine)/</BaseOutputPath>
+    <BaseIntermediateOutputPath>obj/$(ReproEngine)/</BaseIntermediateOutputPath>
+    <DefaultItemExcludes>$(DefaultItemExcludes);bin/**;obj/**</DefaultItemExcludes>
+  </PropertyGroup>
+  <Target Name="_ValidateReproEngine" BeforeTargets="Build">
+    <Error Condition="'$(ReproEngine)' != 'interpreter' And '$(ReproEngine)' != 'r2r'"
+           Text="ReproEngine must be 'interpreter' or 'r2r' (got '$(ReproEngine)')." />
+  </Target>
+</Project>

@@ -1,0 +1,6 @@
+2026-10-27 11:24:22.814 InterpreterRepro[36986:38444947] ENV runtime=.NET 11.0.0-rc.2.26504.105 arch=Arm64 dynamicSupported=True dynamicCompiled=False
+2026-10-27 11:24:22.814 InterpreterRepro[36986:38444947] CONFIG Release engine=interpreter
+2026-10-27 11:24:22.826 InterpreterRepro[36986:38444947] PASS reverse-error.first value=12345 expected=12345 error=0x16ef0c490 returned=99 expectedReturn=99
+2026-10-27 11:24:22.826 InterpreterRepro[36986:38444947] FAIL reverse-error.last value=6156240016 expected=12345 error=0x3039 returned=99 expectedReturn=99
+2026-10-27 11:24:22.826 InterpreterRepro[36986:38444947] COMPLETE failures=1
+com.swiftinteroprepro.interpreter: 36986

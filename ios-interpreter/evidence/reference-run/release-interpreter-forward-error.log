@@ -1,0 +1,9 @@
+2026-10-27 11:24:17.982 InterpreterRepro[36945:38444656] ENV runtime=.NET 11.0.0-rc.2.26504.105 arch=Arm64 dynamicSupported=True dynamicCompiled=False
+2026-10-27 11:24:17.982 InterpreterRepro[36945:38444656] CONFIG Release engine=interpreter
+2026-10-27 11:24:17.994 InterpreterRepro[36945:38444656] PASS forward-error.cdecl actual=11,22,33,44,55 expected=11,22,33,44,55
+2026-10-27 11:24:17.995 InterpreterRepro[36945:38444656] PASS forward-error.last.error error=0x0
+2026-10-27 11:24:17.995 InterpreterRepro[36945:38444656] PASS forward-error.last actual=11,22,33,44,55 expected=11,22,33,44,55
+2026-10-27 11:24:17.995 InterpreterRepro[36945:38444656] PASS forward-error.first.error error=0x0
+2026-10-27 11:24:17.995 InterpreterRepro[36945:38444656] FAIL forward-error.first actual=4443687392,11,22,44,55 expected=11,22,33,44,55
+2026-10-27 11:24:17.995 InterpreterRepro[36945:38444656] COMPLETE failures=1
+com.swiftinteroprepro.interpreter: 36945
